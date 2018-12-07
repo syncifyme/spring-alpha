@@ -19,8 +19,8 @@ pipeline {
       }
       steps {
         container('maven') {
-          sh "mvn versions:set -DnewVersion=$PREVIEW_VERSION"
-          sh "mvn install"
+          sh "./mvnw versions:set -DnewVersion=$PREVIEW_VERSION"
+          sh "./mvnw install"
           sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
           sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           dir('charts/preview') {
@@ -44,9 +44,9 @@ pipeline {
 
           // so we can retrieve the version in later steps
           sh "echo \$(jx-release-version) > VERSION"
-          sh "mvn versions:set -DnewVersion=\$(cat VERSION)"
+          sh "./mvnw versions:set -DnewVersion=\$(cat VERSION)"
           sh "jx step tag --version \$(cat VERSION)"
-          sh "mvn clean deploy"
+          sh "./mvnw clean deploy"
           sh "export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml"
           sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
         }
